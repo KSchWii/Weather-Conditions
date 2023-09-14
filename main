@@ -1,0 +1,61 @@
+'''
+Igor "Kiwi" Araújo with ChatGPT
+14/09/2023
+Pre-install requests and also tkinter with pip.
+To do this, open CMD and install pip using this command: "get-pip.py" 
+and then you will be able to install the desired libraries 
+using these commands: "pip install requests" and "pip install tkinter".
+'''
+
+import tkinter as tk
+from tkinter import messagebox
+
+import requests
+
+
+# Search weather forecast data
+def get_weather():
+    api_key = "b4f3dd46071377aa3e8de8823f23a622"
+    city = city_entry.get()
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
+    
+    try:
+        response = requests.get(url)
+        data = response.json()
+
+        if data["cod"] == 200:
+            temperature = data["main"]["temp"]
+            weather = data["weather"][0]["description"].capitalize()
+            humidity = data["main"]["humidity"]
+            wind_speed = data["wind"]["speed"]
+            rain_chance = "N/A"
+            if "rain" in data:
+                rain_chance = data["rain"].get("1h", "N/A")
+            result_label.config(text=f"Temperature: {temperature}°C\nHumidity:  {humidity}%\nWeather: {weather}\nWind speed: {wind_speed} m/s\nRain Chance (1h): {rain_chance} mm")
+        else:
+            message = data["message"] if "message" in data else "Unknown Error"
+            messagebox.showerror("Error", f"Error getting data: {message}")
+    except Exception as e:
+        messagebox.showerror("Error", f"Unable to obtain data.\nErro: {str(e)}")
+
+# Window configuration
+root = tk.Tk()
+root.title("Weather Conditions")
+
+# City input
+city_label = tk.Label(root, text="Type the city name:")
+city_label.pack()
+
+city_entry = tk.Entry(root)
+city_entry.pack()
+
+# Button to search
+search_button = tk.Button(root, text="Search", command=get_weather)
+search_button.pack()
+
+# Show results
+result_label = tk.Label(root, text="")
+result_label.pack()
+
+# Start interface
+root.mainloop()
